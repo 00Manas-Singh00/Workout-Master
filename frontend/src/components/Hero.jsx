@@ -2,87 +2,61 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from './Button'
 
-function FeatureCard({ icon, title, description, isDarkMode, delay }) {
-    const cardBg = isDarkMode ? 'bg-gray-800' : 'bg-white';
-    const textColor = isDarkMode ? 'text-white' : 'text-gray-800';
-    const borderColor = isDarkMode ? 'border-gray-700' : 'border-gray-200';
+// Utilitarian feature card — square, bordered, no rounded corners, no scale hover
+function FeatureCard({ icon, title, description, isDarkMode }) {
+    const cardBg     = isDarkMode ? 'bg-gray-950'  : 'bg-white';
+    const textColor  = isDarkMode ? 'text-white'   : 'text-gray-900';
+    const borderColor = isDarkMode ? 'border-gray-700' : 'border-gray-300';
     
     return (
-        <div 
-            className={`${cardBg} border ${borderColor} p-6 rounded-lg shadow-md transition-all duration-500 transform hover:scale-105 hover:shadow-lg`}
-            style={{ transitionDelay: `${delay}ms` }}
-        >
-            <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center mb-4">
-                <span className="text-white">{icon}</span>
+        <div className={`${cardBg} border ${borderColor} p-6 transition-colors duration-150 hover:border-gray-500 dark:hover:border-gray-400`}>
+            {/* Square icon container */}
+            <div className={`w-10 h-10 flex items-center justify-center mb-4 border ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'} text-base`}>{icon}</span>
             </div>
-            <h3 className={`${textColor} text-xl font-semibold mb-2`}>{title}</h3>
-            <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'} text-sm`}>{description}</p>
-        </div>
-    );
-}
-
-function TestimonialCard({ name, role, quote, avatar, isDarkMode, delay }) {
-    const cardBg = isDarkMode ? 'bg-gray-800' : 'bg-white';
-    const textColor = isDarkMode ? 'text-white' : 'text-gray-800';
-    const borderColor = isDarkMode ? 'border-gray-700' : 'border-gray-200';
-    
-    return (
-        <div 
-            className={`${cardBg} border ${borderColor} p-6 rounded-lg shadow-md transition-all duration-500 transform hover:rotate-1`}
-            style={{ transitionDelay: `${delay}ms` }}
-        >
-            <div className="flex items-start mb-4">
-                <div className={`w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3`}>
-                    <span className="text-green-600 font-semibold text-lg">{avatar}</span>
-                </div>
-                <div>
-                    <h4 className={`${textColor} font-semibold`}>{name}</h4>
-                    <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'} text-xs`}>{role}</p>
-                </div>
-            </div>
-            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'} text-sm italic`}>"{quote}"</p>
+            <h3
+                className={`${textColor} text-sm font-semibold mb-2 uppercase tracking-wide`}
+                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+            >
+                {title}
+            </h3>
+            <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'} text-sm leading-relaxed`}>{description}</p>
         </div>
     );
 }
 
 export default function Hero({ isDarkMode }) {
     const navigate = useNavigate();
-    const textColor = isDarkMode ? 'text-white' : 'text-gray-800';
-    const accentColor = 'text-green-600';
-    const secondaryTextColor = isDarkMode ? 'text-gray-300' : 'text-gray-600';
-    const sectionBg = isDarkMode ? 'bg-gray-800 bg-opacity-50' : 'bg-gray-50';
-    const statsBg = isDarkMode ? 'bg-gray-700' : 'bg-white';
-    const statsBorder = isDarkMode ? 'border-gray-600' : 'border-gray-200';
+    const textColor        = isDarkMode ? 'text-white'   : 'text-gray-900';
+    const secondaryText    = isDarkMode ? 'text-gray-400' : 'text-gray-500';
+    const sectionBg        = isDarkMode ? 'bg-gray-900'  : 'bg-gray-50';
+    const sectionBorder    = isDarkMode ? 'border-gray-800' : 'border-gray-200';
     
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
-        // Set loaded after a short delay to trigger animations
-        const timer = setTimeout(() => {
-            setIsLoaded(true);
-        }, 100);
-        
+        const timer = setTimeout(() => setIsLoaded(true), 80);
         return () => clearTimeout(timer);
     }, []);
     
     const features = [
         {
-            icon: "📊",
+            icon: "⌗",
             title: "Smart Planning",
             description: "AI-powered workout plans customized to your specific fitness goals and experience level."
         },
         {
-            icon: "🔄",
+            icon: "↻",
             title: "Adaptive Training",
             description: "Workouts that evolve as you progress, ensuring continuous improvement and preventing plateaus."
         },
         {
-            icon: "📱",
+            icon: "▦",
             title: "Progress Tracking",
             description: "Comprehensive tracking of your workout history and achievements to stay motivated."
         },
         {
-            icon: "🏆",
+            icon: "◎",
             title: "Goal-focused",
             description: "Specialized training approaches for strength, hypertrophy, or endurance based on your objectives."
         }
@@ -90,84 +64,120 @@ export default function Hero({ isDarkMode }) {
     
     return (
         <div className='flex flex-col w-full'>
-            {/* Hero Section */}
-            <div className='min-h-[90vh] flex flex-col gap-10 items-center justify-center text-center max-w-[900px] w-full mx-auto p-4 relative'>
-                <div className='flex flex-col gap-4 z-10'>
-                    <p className={`${accentColor} font-medium uppercase tracking-widest transition-all duration-700 transform ${
-                        isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-                    }`}>TRANSFORM YOUR FITNESS JOURNEY</p>
-                    <h1 className={`uppercase font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl ${textColor} transition-all duration-700 delay-200 transform ${
-                        isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-                    }`}>
-                        Work<span className={`${accentColor} relative group`}>
-                            <span className="absolute -inset-1 bg-green-500 opacity-20 rounded-lg blur-sm group-hover:opacity-30 transition-opacity duration-300"></span>
-                            <span className="relative">Out</span>
-                        </span> Master
-                    </h1>
-                </div>
-                <p className={`text-sm md:text-base font-light max-w-[600px] ${secondaryTextColor} transition-all duration-700 delay-400 transform ${
-                    isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-                }`}>
-                    Get customized workouts tailored to your goals, track your progress, and achieve the results you've always wanted. Our scientifically-backed approach helps you optimize every session for maximum efficiency and results.
-                </p>
-                <div className={`transition-all duration-700 delay-600 transform ${
-                    isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-                }`}>
-                    <Button func={() => {
-                        navigate('/generate');
-                    }} text={"Create Your Workout"} className="bg-green-600 hover:bg-green-700"></Button>
-                </div>
+            {/* ── Hero Section ─────────────────────────────── */}
+            <div className={`min-h-[90vh] flex flex-col gap-8 items-start justify-center max-w-[860px] w-full mx-auto px-6 py-16 relative transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
                 
-                {/* Animated background elements */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    {[...Array(6)].map((_, i) => (
-                        <div 
-                            key={i}
-                            className={`absolute rounded-full bg-green-500 opacity-10 ${isDarkMode ? 'bg-opacity-20' : 'bg-opacity-30'}`}
-                            style={{
-                                width: `${Math.random() * 200 + 50}px`,
-                                height: `${Math.random() * 200 + 50}px`,
-                                top: `${Math.random() * 100}%`,
-                                left: `${Math.random() * 100}%`,
-                                animation: `float ${Math.random() * 20 + 30}s linear infinite`,
-                                animationDelay: `${Math.random() * 20}s`,
-                                transform: `translate(-50%, -50%) scale(${Math.random() * 0.5 + 0.5})`,
-                            }}
-                        />
+                {/* Overline monospace label */}
+                <p
+                    className={`${secondaryText} text-xs uppercase tracking-[0.2em]`}
+                    style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                >
+                    / Transform your fitness journey
+                </p>
+
+                {/* Title — sharp, tight, no glow */}
+                <h1
+                    className={`font-bold text-5xl sm:text-6xl md:text-7xl lg:text-8xl ${textColor} leading-none tracking-tight uppercase`}
+                >
+                    Work<span className="font-black">Out</span><br />Master
+                </h1>
+
+                {/* Horizontal rule — utilitarian divider */}
+                <div className={`w-16 h-[2px] ${isDarkMode ? 'bg-white' : 'bg-gray-900'}`} />
+
+                <p className={`text-sm md:text-base font-light max-w-[520px] ${secondaryText} leading-relaxed`}>
+                    Customized workouts tailored to your goals. Track progress and achieve results through a scientifically-backed, systematic approach.
+                </p>
+
+                <div className="flex gap-3 flex-wrap">
+                    <Button
+                        func={() => navigate('/generate')}
+                        text="Create Workout"
+                    />
+                    <button
+                        onClick={() => navigate('/history')}
+                        className={`px-8 py-4 text-sm uppercase tracking-wider font-medium transition-colors duration-150 border-2
+                            ${isDarkMode
+                                ? 'border-gray-600 text-gray-300 hover:border-white hover:text-white'
+                                : 'border-gray-300 text-gray-600 hover:border-gray-900 hover:text-gray-900'
+                            }`}
+                        style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                    >
+                        View History
+                    </button>
+                </div>
+
+                {/* Stats row — utilitarian data display */}
+                <div className={`flex gap-8 pt-4 border-t ${sectionBorder} w-full`}>
+                    {[
+                        { value: '100+', label: 'Exercises' },
+                        { value: 'AI',   label: 'Powered'   },
+                        { value: '∞',    label: 'Plans'     },
+                    ].map(stat => (
+                        <div key={stat.label}>
+                            <p
+                                className={`text-2xl font-bold ${textColor}`}
+                                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                            >
+                                {stat.value}
+                            </p>
+                            <p
+                                className={`text-xs uppercase tracking-widest ${secondaryText}`}
+                                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                            >
+                                {stat.label}
+                            </p>
+                        </div>
                     ))}
                 </div>
             </div>
             
-            {/* Features Section */}
-            <div className={`${sectionBg} py-16 px-4 w-full`}>
+            {/* ── Features Section ───────────────────────── */}
+            <div className={`${sectionBg} border-t ${sectionBorder} py-16 px-6 w-full`}>
                 <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-12">
-                        <h2 className={`text-3xl font-bold mb-4 ${textColor}`}>Why Choose WorkOut Master?</h2>
-                        <p className={`${secondaryTextColor} max-w-2xl mx-auto`}>Our platform offers scientifically-backed training methods to help you achieve your fitness goals faster and more efficiently.</p>
+                    <div className="mb-10">
+                        <p
+                            className={`text-xs uppercase tracking-[0.2em] ${secondaryText} mb-3`}
+                            style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                        >
+                            / Capabilities
+                        </p>
+                        <h2 className={`text-2xl font-bold ${textColor} uppercase tracking-tight`}>
+                            Why WorkOut Master
+                        </h2>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border ${sectionBorder}`}>
                         {features.map((feature, index) => (
-                            <FeatureCard 
+                            <div
                                 key={index}
-                                icon={feature.icon}
-                                title={feature.title}
-                                description={feature.description}
-                                isDarkMode={isDarkMode}
-                                delay={index * 100}
-                            />
+                                className={`${index < features.length - 1 ? `border-r ${sectionBorder}` : ''}`}
+                            >
+                                <FeatureCard 
+                                    icon={feature.icon}
+                                    title={feature.title}
+                                    description={feature.description}
+                                    isDarkMode={isDarkMode}
+                                />
+                            </div>
                         ))}
+                    </div>
+
+                    {/* CTA Row */}
+                    <div className={`mt-0 border border-t-0 ${sectionBorder} p-6 flex items-center justify-between flex-wrap gap-4`}>
+                        <p
+                            className={`text-xs uppercase tracking-widest ${secondaryText}`}
+                            style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                        >
+                            Ready to begin?
+                        </p>
+                        <Button 
+                            func={() => navigate('/generate')}
+                            text="Start Fitness Journey"
+                        />
                     </div>
                 </div>
             </div>
-            
-            <div className="text-center mt-12">
-                <Button 
-                    func={() => { navigate('/generate'); }} 
-                    text="Start Your Fitness Journey" 
-                    className="bg-green-600 hover:bg-green-700"
-                />
-            </div>
         </div>
-    )
+    );
 }

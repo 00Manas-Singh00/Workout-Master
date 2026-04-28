@@ -2,12 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================
+   UTILITARIAN DESIGN — Global Base Styles
+   ========================================= */
+
 html {
   scroll-behavior: smooth;
 }
 
 * {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  box-sizing: border-box;
 }
 
 span {
@@ -15,151 +20,111 @@ span {
   font-weight: inherit;
 }
 
-/* Animation keyframes */
-@keyframes float {
-  0% {
-    transform: translate(-50%, -50%) translateY(0) scale(1);
-  }
-  50% {
-    transform: translate(-50%, -50%) translateY(-20px) scale(1.05);
-  }
-  100% {
-    transform: translate(-50%, -50%) translateY(0) scale(1);
-  }
+/* -----------------------------------------------
+   Functional animations only — no decorative FX
+   ----------------------------------------------- */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
+@keyframes slideInFromBottom {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
 }
 
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
+@keyframes slideInFromRight {
+  from { transform: translateX(12px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-/* Animation utility classes */
+/* Mobile menu slide — kept functional */
+@keyframes slide-in {
+  from { max-height: 0;   opacity: 0; }
+  to   { max-height: 500px; opacity: 1; }
+}
+
+@keyframes slide-out {
+  from { max-height: 500px; opacity: 1; }
+  to   { max-height: 0;   opacity: 0; }
+}
+
 .animate-in {
-  animation-duration: 300ms;
+  animation-duration: 200ms;
   animation-timing-function: ease-out;
   animation-fill-mode: both;
 }
 
-.fade-in {
-  animation-name: fadeIn;
+.fade-in               { animation-name: fadeIn; }
+.slide-in-from-bottom  { animation-name: slideInFromBottom; }
+.slide-in-from-right   { animation-name: slideInFromRight; }
+.zoom-in-50            { animation-name: fadeIn; } /* replaced decorative zoom with plain fade */
+
+.animate-slide-in  { animation: slide-in  0.2s ease-out forwards; }
+.animate-slide-out { animation: slide-out 0.2s ease-in  forwards; }
+
+/* -----------------------------------------------
+   Utilitarian Utility Classes
+   ----------------------------------------------- */
+
+/* Monospace ALL-CAPS label — used for section headers, tags */
+.u-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
 }
 
-.slide-in-from-bottom {
-  animation-name: slideInFromBottom;
+/* Hard divider — 1px solid line, no fading */
+.u-divider {
+  border: 0;
+  border-top: 1px solid currentColor;
+  opacity: 0.15;
 }
 
-.slide-in-from-right {
-  animation-name: slideInFromRight;
+/* Hard-offset shadow (light mode) */
+.u-shadow {
+  box-shadow: 3px 3px 0 0 #111111;
+}
+.u-shadow:hover {
+  box-shadow: 5px 5px 0 0 #111111;
+  transform: translate(-1px, -1px);
 }
 
-.zoom-in-50 {
-  animation-name: zoomIn50;
+/* Hard-offset shadow (dark mode) */
+.dark .u-shadow {
+  box-shadow: 3px 3px 0 0 #ffffff40;
+}
+.dark .u-shadow:hover {
+  box-shadow: 5px 5px 0 0 #ffffff40;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideInFromBottom {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideInFromRight {
-  from {
-    transform: translateX(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes zoomIn50 {
-  from {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* Mobile menu animations */
-@keyframes slide-in {
-  from {
-    max-height: 0;
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    max-height: 500px;
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slide-out {
-  from {
-    max-height: 500px;
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    max-height: 0;
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-}
-
-.animate-slide-in {
-  animation: slide-in 0.3s ease-out forwards;
-}
-
-.animate-slide-out {
-  animation: slide-out 0.3s ease-in forwards;
-}
-
+/* Legacy blueShadow → replaced with monochrome hard-shadow */
 .blueShadow {
-  box-shadow: 3px 3px 0 0 #60a5fa;
+  box-shadow: 3px 3px 0 0 #111111;
+}
+.blueShadow:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 0 #111111;
 }
 
-.blueShadow:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 6px 6px 0 0 #60a5fa;
+/* Underline active-state marker (used in navbar) */
+.u-active-underline {
+  position: relative;
+}
+.u-active-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: currentColor;
 }

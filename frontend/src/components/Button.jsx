@@ -5,13 +5,14 @@ export default function Button(props) {
     return (
         <button 
             onClick={func} 
-            className={`px-8 mx-auto py-4 rounded-md font-medium transition-all duration-300 
-            bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl
-            transform hover:-translate-y-1 active:translate-y-0 active:shadow-md
-            hover:scale-105 active:scale-95 relative overflow-hidden group ${className}`}
+            className={`px-8 mx-auto py-4 font-medium transition-colors duration-150
+            bg-gray-900 hover:bg-gray-700 text-white
+            border-2 border-gray-900 hover:border-gray-700
+            rounded-none uppercase tracking-wider text-sm
+            active:bg-gray-600 ${className}`}
+            style={{ fontFamily: "'IBM Plex Mono', monospace" }}
         >
-            <span className="relative z-10">{text}</span>
-            <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-md"></span>
+            {text}
         </button>
     )
 }

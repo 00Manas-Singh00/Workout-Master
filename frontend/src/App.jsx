@@ -21,41 +21,64 @@ import { useWorkout } from './context/WorkoutContext'
 import { setAuthTokenGetter, syncAuthUser } from './utils/api'
 import ToastProvider from './components/ui/Toast'
 
-// Custom styles for Clerk components
+// Clerk style overrides — keep to monochrome
 const ClerkStyles = ({ isDarkMode }) => {
   const styles = `
     .clerk-auth-container .cl-card {
-      border-radius: 0.75rem;
-      ${isDarkMode ? 'background-color: #1f2937; color: white;' : ''}
+      border-radius: 0;
+      box-shadow: none;
+      ${isDarkMode ? 'background-color: #111111; color: white;' : 'background-color: #ffffff;'}
     }
     
     .clerk-auth-container .cl-socialButtonsIconButton {
-      ${isDarkMode ? 'background-color: #374151; border-color: #4b5563;' : ''}
+      border-radius: 0;
+      ${isDarkMode ? 'background-color: #222222; border-color: #333333;' : 'border-radius: 0;'}
     }
     
     .clerk-auth-container .cl-dividerText {
-      ${isDarkMode ? 'color: #9ca3af;' : ''}
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      ${isDarkMode ? 'color: #6b7280;' : 'color: #9ca3af;'}
     }
     
     .clerk-auth-container .cl-dividerLine {
-      ${isDarkMode ? 'background-color: #4b5563;' : ''}
+      ${isDarkMode ? 'background-color: #333333;' : 'background-color: #e5e7eb;'}
     }
     
     .clerk-auth-container .cl-formFieldLabel {
-      ${isDarkMode ? 'color: #e5e7eb;' : ''}
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      ${isDarkMode ? 'color: #d1d5db;' : 'color: #374151;'}
     }
     
     .clerk-auth-container .cl-formFieldInput {
-      ${isDarkMode ? 'background-color: #374151; border-color: #4b5563; color: white;' : ''}
+      border-radius: 0;
+      ${isDarkMode ? 'background-color: #1a1a1a; border-color: #333333; color: white;' : 'border-color: #d1d5db;'}
     }
     
     .clerk-auth-container .cl-footerActionText {
-      ${isDarkMode ? 'color: #9ca3af;' : ''}
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      ${isDarkMode ? 'color: #6b7280;' : 'color: #9ca3af;'}
+    }
+
+    .clerk-auth-container .cl-formButtonPrimary {
+      border-radius: 0;
+      background-color: #111111;
+      font-family: 'IBM Plex Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 0.75rem;
     }
   `;
 
   return <style>{styles}</style>;
 };
+
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -66,7 +89,7 @@ const ProtectedRoute = ({ children }) => {
     // Show loading state while Clerk loads
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
+        <div className="animate-spin h-8 w-8 border-2 border-gray-900 dark:border-white border-t-transparent"></div>
       </div>
     );
   }
@@ -168,34 +191,39 @@ function App() {
     setIsDarkMode(!isDarkMode);
   };
 
+  // Utilitarian tones: off-white parchment for light, near-black for dark
   const themeClass = isDarkMode 
-    ? 'bg-gray-900 text-white' 
-    : 'bg-white text-gray-900';
+    ? 'bg-[#0d0d0d] text-white' 
+    : 'bg-[#f5f0eb] text-gray-900';
 
-  // Clerk Auth Modal with improved appearance
+  // Clerk Auth Modal — utilitarian: solid overlay, square container, no blur/animation
   const ClerkAuthModal = () => {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
-        <div className="w-full max-w-md m-4 transform transition-all duration-300 animate-slideIn relative">
+      <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 animate-fadeIn">
+        <div className="w-full max-w-md m-4 relative">
           <button 
             onClick={() => setShowAuth(false)}
-            className="absolute top-2 right-2 z-10 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white rounded-full bg-white dark:bg-gray-800 p-1"
+            className={`absolute top-0 right-0 z-10 p-2 text-xs uppercase tracking-wider font-medium transition-colors duration-150
+              ${isDarkMode ? 'bg-gray-900 text-gray-300 hover:text-white border border-gray-700' : 'bg-white text-gray-500 hover:text-gray-900 border border-gray-300'}`}
+            style={{ fontFamily: "'IBM Plex Mono', monospace" }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            ✕ Close
           </button>
           
-          <div className={`rounded-2xl shadow-xl overflow-hidden ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-            <div className="p-6 pb-0">
-              <h2 className={`text-2xl font-bold text-center ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                {showAuth === 'signin' ? 'Welcome Back!' : 'Join Workout Master'}
-              </h2>
-              <p className={`text-center mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                {showAuth === 'signin' 
-                  ? 'Sign in to access your workouts' 
-                  : 'Create an account to begin your fitness journey'}
+          <div className={`overflow-hidden border-2 ${isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-300'}`}>
+            {/* Utilitarian header bar */}
+            <div className={`px-6 py-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <p
+                className={`text-xs uppercase tracking-[0.2em] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-1`}
+                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+              >
+                {showAuth === 'signin' ? '/ Authentication' : '/ Registration'}
               </p>
+              <h2 className={`text-lg font-bold uppercase tracking-wide ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+              >
+                {showAuth === 'signin' ? 'Sign In' : 'Create Account'}
+              </h2>
             </div>
             
             <div className="clerk-auth-container">
@@ -207,8 +235,9 @@ function App() {
                   afterSignInUrl="/"
                   appearance={{
                     elements: {
-                      formButtonPrimary: 'bg-green-600 hover:bg-green-700',
-                      footerActionLink: 'text-green-600 hover:text-green-700',
+                      formButtonPrimary: 'bg-gray-900 hover:bg-gray-700 rounded-none',
+                      footerActionLink: 'text-gray-900 hover:text-gray-600',
+                      card: 'shadow-none',
                     },
                   }}
                 />
@@ -220,30 +249,35 @@ function App() {
                   afterSignUpUrl="/"
                   appearance={{
                     elements: {
-                      formButtonPrimary: 'bg-green-600 hover:bg-green-700',
-                      footerActionLink: 'text-green-600 hover:text-green-700',
+                      formButtonPrimary: 'bg-gray-900 hover:bg-gray-700 rounded-none',
+                      footerActionLink: 'text-gray-900 hover:text-gray-600',
+                      card: 'shadow-none',
                     },
                   }}
                 />
               )}
               
-              <div className="py-4 px-6 text-center">
+              <div className={`py-4 px-6 text-center border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                 {showAuth === 'signin' ? (
-                  <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
-                    Don't have an account?{' '}
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                  >
+                    No account?{' '}
                     <button 
                       onClick={() => setShowAuth('signup')}
-                      className="text-green-600 hover:text-green-700 font-medium"
+                      className="underline hover:no-underline font-medium"
                     >
-                      Sign up
+                      Register
                     </button>
                   </p>
                 ) : (
-                  <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
-                    Already have an account?{' '}
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                    style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                  >
+                    Have an account?{' '}
                     <button 
                       onClick={() => setShowAuth('signin')}
-                      className="text-green-600 hover:text-green-700 font-medium"
+                      className="underline hover:no-underline font-medium"
                     >
                       Sign in
                     </button>
