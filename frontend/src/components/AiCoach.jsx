@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import SectionWrapper from './SectionWrapper';
 import { sendChatMessage } from '../utils/api';
 
@@ -34,6 +35,10 @@ function TypingDots({ isDarkMode }) {
     </div>
   );
 }
+
+TypingDots.propTypes = {
+  isDarkMode: PropTypes.bool.isRequired,
+};
 
 // ── Message bubble ────────────────────────────────────────────────────────────
 function MessageBubble({ msg, isDarkMode }) {
@@ -127,7 +132,14 @@ function MessageBubble({ msg, isDarkMode }) {
   );
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
+MessageBubble.propTypes = {
+  msg: PropTypes.shape({
+    role: PropTypes.string.isRequired,
+    content: PropTypes.string.isRequired,
+  }).isRequired,
+  isDarkMode: PropTypes.bool.isRequired,
+};
+
 export default function AiCoach({ isDarkMode }) {
   const mono = { fontFamily: "'IBM Plex Mono', monospace" };
   const [messages, setMessages] = useState([

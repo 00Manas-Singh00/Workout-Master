@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
-import { 
-  SignedIn, 
-  SignedOut, 
-  SignIn, 
-  SignUp, 
-  UserButton, 
-  useUser, 
-  useClerk,
+import PropTypes from 'prop-types'
+import {
+  SignIn,
+  SignUp,
+  useUser,
   useAuth as useClerkAuth
 } from '@clerk/clerk-react'
 import Hero from './components/Hero'
@@ -81,26 +78,33 @@ const ClerkStyles = ({ isDarkMode }) => {
   return <style>{styles}</style>;
 };
 
+ClerkStyles.propTypes = {
+  isDarkMode: PropTypes.bool.isRequired,
+};
+
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
   const { isSignedIn, isLoaded } = useUser();
   const location = useLocation();
-  
+
   if (!isLoaded) {
-    // Show loading state while Clerk loads
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin h-8 w-8 border-2 border-gray-900 dark:border-white border-t-transparent"></div>
       </div>
     );
   }
-  
+
   if (!isSignedIn) {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
-  
+
   return children;
+};
+
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 function App() {
@@ -108,8 +112,7 @@ function App() {
   const { getToken } = useClerkAuth();
   const { currentWorkout, saveWorkout, markWorkoutComplete } = useWorkout();
   const navigate = useNavigate();
-  const location = useLocation();
-  
+
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
 
