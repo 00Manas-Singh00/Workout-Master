@@ -10,14 +10,15 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "install-all": "npm install && cd frontend && npm install",
     "build": "cd frontend && npm run build",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage"
   },
   "dependencies": {
     "@clerk/backend": "^2.14.0",
     "@clerk/react": "^6.4.5",
     "@google/generative-ai": "^0.24.1",
+    "@sentry/node": "^10.51.0",
     "bcryptjs": "^2.4.3",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.6",
@@ -29,6 +30,9 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.3",
     "redis": "^5.12.1",
+    "socket.io": "^4.8.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "uuid": "^14.0.0",
     "winston": "^3.19.0",
     "zod": "^3.24.1"

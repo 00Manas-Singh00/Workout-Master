@@ -231,3 +231,21 @@ export const getAIRecommendation = async (planType, userProfile) => {
     throw error.response?.data || { success: false, message: error.message };
   }
 };
+
+export const getAnalyticsDashboard = async () => {
+  try {
+    const response = await api.get('/analytics/dashboard');
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { success: false, message: error.message };
+  }
+};
+
+export const sendChatMessage = async (message, history = []) => {
+  try {
+    const response = await api.post('/chat/message', { message, history });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { success: false, message: error.message };
+  }
+};

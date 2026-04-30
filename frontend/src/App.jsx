@@ -17,6 +17,8 @@ import Navbar from './components/Navbar'
 import Profile from './components/Profile'
 import WorkoutHistory from './components/WorkoutHistory'
 import WeeklyPlanView from './components/WeeklyPlanView'
+import AnalyticsDashboard from './components/AnalyticsDashboard'
+import AiCoach from './components/AiCoach'
 import { useWorkout } from './context/WorkoutContext'
 import { setAuthTokenGetter, syncAuthUser } from './utils/api'
 import ToastProvider from './components/ui/Toast'
@@ -330,6 +332,16 @@ function App() {
             <Route path="/weekly-plan" element={
               <ProtectedRoute>
                 <WeeklyPlanView isDarkMode={isDarkMode} />
+              </ProtectedRoute>
+            } />
+            <Route path="/analytics" element={
+              <ProtectedRoute>
+                <AnalyticsDashboard isDarkMode={isDarkMode} />
+              </ProtectedRoute>
+            } />
+            <Route path="/coach" element={
+              <ProtectedRoute>
+                <AiCoach isDarkMode={isDarkMode} />
               </ProtectedRoute>
             } />
             <Route path="*" element={<Navigate to="/" replace />} />

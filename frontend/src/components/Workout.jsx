@@ -1,135 +1,120 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
 import SectionWrapper from './SectionWrapper';
 import Button from './ui/Button';
 import Card from './ui/Card';
 import { useToast } from './ui/Toast';
 import { useWorkout } from '../context/WorkoutContext';
 import { logWorkoutSet, startWorkoutSession } from '../utils/api';
+import { useSessionTimer } from '../utils/useSessionTimer';
 
-// Timer component for workout rest periods
-const Timer = ({ seconds, onComplete, isDarkMode }) => {
-  const [timeLeft, setTimeLeft] = useState(seconds || 60);
-  const [isActive, setIsActive] = useState(true);
-  
-  useEffect(() => {
-    // Update timeLeft if seconds prop changes
-    setTimeLeft(seconds || 60);
-  }, [seconds]);
-  
-  useEffect(() => {
-    if (!isActive) return;
-    
-    if (timeLeft === 0) {
-      onComplete();
-      return;
-    }
-    
-    const timer = setTimeout(() => {
-      setTimeLeft(timeLeft - 1);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, [timeLeft, isActive, onComplete]);
-  
-  const toggleTimer = () => {
-    setIsActive(!isActive);
+// ── WebSocket-backed rest timer overlay ─────────────────────────────────────
+const RestTimerOverlay = ({ remaining, total, isDarkMode, onSkip }) => {
+  const isDone = remaining === 0;
+  const pct = total > 0 ? remaining / total : 0;
+  const radius = 54;
+  const circumference = 2 * Math.PI * radius;
+  const dash = circumference * pct;
+
+  const formatTime = (s) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
   };
-  
-  const resetTimer = () => {
-    setTimeLeft(seconds || 60);
-    setIsActive(true);
-  };
-  
-  // Format time as MM:SS
-  const formatTime = (time) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
-  
-  // Calculate progress percentage
-  const progressPercent = (timeLeft / (seconds || 60)) * 100;
-  
-  // Determine color based on time left percentage
-  const getProgressColor = () => {
-    if (progressPercent > 60) return 'bg-green-600 dark:bg-green-500';
-    if (progressPercent > 30) return 'bg-yellow-500 dark:bg-yellow-500';
-    return 'bg-red-500 dark:bg-red-500';
-  };
-  
+
+  const mono = { fontFamily: "'IBM Plex Mono', monospace" };
+  const accent = isDarkMode ? '#e5e7eb' : '#111111';
+  const gridColor = isDarkMode ? '#2d2d2d' : '#e5e7eb';
+
   return (
-    <div className={`mt-4 p-4 rounded-xl ${isDarkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-gray-50 border border-gray-200'}`}>
-      <div className="text-center mb-3">
-        <h3 className={`text-xl font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Rest Time</h3>
-        <p className={`text-3xl font-bold ${getProgressColor().includes('red') ? 'text-red-500' : isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-          {formatTime(timeLeft)}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-[2px] animate-fadeIn">
+      <div
+        className={`relative w-72 p-8 border-2 flex flex-col items-center gap-5 ${
+          isDarkMode ? 'bg-gray-950 border-gray-700' : 'bg-white border-gray-300'
+        }`}
+      >
+        {/* Label */}
+        <p
+          className={`text-xs uppercase tracking-widest ${
+            isDarkMode ? 'text-gray-500' : 'text-gray-400'
+          }`}
+          style={mono}
+        >
+          {isDone ? '/ Rest Complete' : '/ Rest Timer'}
         </p>
-      </div>
-      
-      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-4">
-        <div 
-          className={`${getProgressColor()} h-3 rounded-full transition-all duration-1000`}
-          style={{ width: `${progressPercent}%` }}
-        ></div>
-      </div>
-      
-      <div className="flex justify-center space-x-3">
-        <button 
-          onClick={toggleTimer} 
-          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2
-            ${isActive 
-              ? (isDarkMode ? 'bg-gray-700 text-yellow-300 hover:bg-gray-600' : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200') 
-              : (isDarkMode ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-blue-600 text-white hover:bg-blue-500')
-            }`}
-        >
-          {isActive ? (
-            <>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Pause
-            </>
-          ) : (
-            <>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Resume
-            </>
+
+        {/* SVG Arc */}
+        <svg width={130} height={130} viewBox="0 0 130 130">
+          {/* Track */}
+          <circle cx={65} cy={65} r={radius} fill="none" stroke={gridColor} strokeWidth={6} />
+          {/* Progress arc */}
+          {!isDone && (
+            <circle
+              cx={65}
+              cy={65}
+              r={radius}
+              fill="none"
+              stroke={accent}
+              strokeWidth={6}
+              strokeLinecap="butt"
+              strokeDasharray={`${dash} ${circumference}`}
+              transform="rotate(-90 65 65)"
+              style={{ transition: 'stroke-dasharray 0.95s linear' }}
+            />
           )}
-        </button>
-        <button 
-          onClick={resetTimer} 
-          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2
-            ${isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+          {/* Centre text */}
+          <text
+            x={65}
+            y={68}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fill={accent}
+            fontSize={isDone ? 14 : 26}
+            fontWeight={900}
+            fontFamily="IBM Plex Mono, monospace"
+          >
+            {isDone ? 'DONE' : formatTime(remaining)}
+          </text>
+        </svg>
+
+        {/* Skip / Next button */}
+        <button
+          onClick={onSkip}
+          className={`w-full py-2.5 text-xs uppercase tracking-widest font-medium border transition-colors duration-150 ${
+            isDone
+              ? isDarkMode
+                ? 'bg-white text-gray-900 border-white hover:bg-gray-200'
+                : 'bg-gray-900 text-white border-gray-900 hover:bg-gray-700'
+              : isDarkMode
+              ? 'text-gray-400 border-gray-700 hover:text-white hover:border-white'
+              : 'text-gray-500 border-gray-300 hover:text-gray-900 hover:border-gray-900'
+          }`}
+          style={mono}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          Reset
+          {isDone ? 'Next Set →' : 'Skip Rest'}
         </button>
       </div>
     </div>
   );
 };
 
+
 const Workout = ({ isDarkMode }) => {
   const navigate = useNavigate();
-  const { 
-    currentWorkout, 
+  const { user } = useUser();
+  const {
+    currentWorkout,
     setCurrentWorkout,
-    saveWorkout, 
-    markWorkoutComplete, 
+    saveWorkout,
+    markWorkoutComplete,
     markWorkoutSkipped,
     loadAIGeneratedWorkout,
-    error, 
-    setError 
+    error,
+    setError
   } = useWorkout();
   const { success: toastSuccess, error: toastError } = useToast();
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
-  const [showTimer, setShowTimer] = useState(false);
   const [workoutId, setWorkoutId] = useState(null);
   const [sessionStarted, setSessionStarted] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -140,6 +125,11 @@ const Workout = ({ isDarkMode }) => {
   const [showOverview, setShowOverview] = useState(false);
   const saveInFlightRef = useRef(false);
   const autoSaveDoneRef = useRef(false);
+
+  // WebSocket rest timer
+  const { remaining, total, isRunning, startTimer, cancelTimer } = useSessionTimer(
+    user?.id
+  );
 
   useEffect(() => {
     if (error) {
@@ -414,20 +404,16 @@ const Workout = ({ isDarkMode }) => {
 
   const handleNextExercise = () => {
     if (currentExerciseIndex < exercises.length - 1) {
+      cancelTimer();
       setCurrentExerciseIndex(currentExerciseIndex + 1);
-      setShowTimer(true);
     }
   };
 
   const handlePrevExercise = () => {
     if (currentExerciseIndex > 0) {
+      cancelTimer();
       setCurrentExerciseIndex(currentExerciseIndex - 1);
-      setShowTimer(false);
     }
-  };
-
-  const handleTimerComplete = () => {
-    setShowTimer(false);
   };
 
   const handleSetCompleted = async (setIndex, isCompleted) => {
@@ -457,6 +443,10 @@ const Workout = ({ isDarkMode }) => {
     }
 
     if (!isCompleted) return;
+
+    // Start rest timer after a completed set
+    const restSec = currentExercise?.rest || 90;
+    startTimer(restSec);
 
     const id = workoutId || currentWorkout?._id;
     const currentExerciseId = currentExercise?.sessionExerciseId;
@@ -684,9 +674,14 @@ const Workout = ({ isDarkMode }) => {
             </div>
           </div>
           
-          {/* Timer - Show only when timer is active */}
-          {showTimer && (
-            <Timer seconds={restTime} onComplete={handleTimerComplete} isDarkMode={isDarkMode} />
+          {/* Rest timer overlay — WebSocket backed */}
+          {(isRunning || remaining === 0) && (
+            <RestTimerOverlay
+              remaining={remaining ?? 0}
+              total={total ?? 90}
+              isDarkMode={isDarkMode}
+              onSkip={cancelTimer}
+            />
           )}
         </div>
       </div>

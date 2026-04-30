@@ -5,6 +5,8 @@ import helmet from 'helmet';
 import compression from 'compression';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import * as Sentry from '@sentry/node';
+import swaggerUi from 'swagger-ui-express';
 import apiRouter from './routes/index.js';
 import { env } from './config/env.js';
 import { errorHandler, notFound } from './middleware/errorMiddleware.js';
@@ -13,6 +15,7 @@ import { requestId } from './middleware/requestId.js';
 import { cacheMiddleware } from './middleware/cache.js';
 import { connectRedis } from './config/redis.js';
 import logger from './utils/logger.js';
+import { swaggerSpec } from './config/swagger.js';
 
 const isAllowedDevOrigin = (origin = '') => {
   if (!origin) return true;
@@ -49,6 +52,18 @@ const buildCorsOptions = () => ({
 export const createApp = async () => {
   const app = express();
 
+  // ── Sentry (must be first) ─────────────────────────────────────────────────
+  if (process.env.SENTRY_DSN) {
+    Sentry.init({
+      dsn: process.env.SENTRY_DSN,
+      environment: env.nodeEnv,
+      tracesSampleRate: env.nodeEnv === 'production' ? 0.2 : 1.0,
+      integrations: [Sentry.httpIntegration(), Sentry.mongooseIntegration()],
+    });
+    app.use(Sentry.expressErrorHandler());
+    logger.info('Sentry error monitoring initialized');
+  }
+
   // Initialize Redis connection
   await connectRedis();
 
@@ -71,6 +86,27 @@ export const createApp = async () => {
   // Rate limiting
   app.use('/api', generalLimiter);
   app.use('/api/auth', authLimiter);
+
+  // ── Swagger UI ─────────────────────────────────────────────────────────────
+  const enableSwagger = env.nodeEnv !== 'production' || process.env.ENABLE_SWAGGER === 'true';
+  if (enableSwagger) {
+    app.use(
+      '/api/docs',
+      swaggerUi.serve,
+      swaggerUi.setup(swaggerSpec, {
+        customSiteTitle: 'Workout Master API',
+        customCss: `
+          .swagger-ui .topbar { background-color: #000; }
+          .swagger-ui .topbar-wrapper img { content: url('data:image/svg+xml,<svg/>'); width: 0; }
+          .swagger-ui .topbar-wrapper::before { content: 'WORKOUT MASTER API'; color: white; font-family: monospace; font-size: 14px; font-weight: bold; letter-spacing: 0.1em; }
+        `,
+        swaggerOptions: { persistAuthorization: true },
+      })
+    );
+    // Also expose the raw spec for CI validation / external tooling
+    app.get('/api/docs.json', (req, res) => res.json(swaggerSpec));
+    logger.info('Swagger UI available at /api/docs');
+  }
 
   // Health check endpoint
   app.get('/health', (req, res) => {
