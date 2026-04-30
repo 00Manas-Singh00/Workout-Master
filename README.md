@@ -11,7 +11,7 @@
 [![PWA](https://img.shields.io/badge/PWA-ready-blueviolet)](https://web.dev/progressive-web-apps/)
 [![API Docs](https://img.shields.io/badge/API-Swagger-85EA2D?logo=swagger)](http://localhost:5000/api/docs)
 
-[Live Demo](https://workout-master.vercel.app) · [API Documentation](http://localhost:5000/api/docs) · [Report Bug](https://github.com/00Manas-Singh00/Workout-Master/issues)
+[Live Demo](https://workout-master-omega.vercel.app/) · [API Documentation](http://localhost:5000/api/docs) · [Report Bug](https://github.com/00Manas-Singh00/Workout-Master/issues)
 
 </div>
 
