@@ -3,23 +3,12 @@ import { createApp } from '../../app.js';
 import User from '../../models/userModel.js';
 import Session from '../../models/sessionModel.js';
 import ExerciseMetrics from '../../models/exerciseMetricsModel.js';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose from 'mongoose';
 
 describe('Analytics API Integration Tests', () => {
   let app;
-  let mongoServer;
 
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
-    await mongoose.connect(mongoUri);
     app = await createApp();
-  });
-
-  afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
   });
 
   afterEach(async () => {
@@ -153,12 +142,12 @@ describe('Analytics API Integration Tests', () => {
       expect(d.strengthTrends[0]).toHaveProperty('exercise');
       expect(d.strengthTrends[0]).toHaveProperty('progressionState');
 
-      // Muscle breakdown: chest should appear twice
+      // Muscle breakdown: chest appears in Session 1 (completed only — Session 3 is planned)
       const chestEntry = d.muscleBreakdown.find(
         (m) => m.muscle.toLowerCase() === 'chest'
       );
       expect(chestEntry).toBeDefined();
-      expect(chestEntry.count).toBe(2);
+      expect(chestEntry.count).toBe(1);
     });
 
     it('should return 0 adherence and empty arrays for a user with no sessions', async () => {

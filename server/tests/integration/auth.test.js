@@ -1,23 +1,12 @@
 import request from 'supertest';
 import { createApp } from '../../app.js';
 import User from '../../models/userModel.js';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose from 'mongoose';
 
 describe('Auth API Integration Tests', () => {
   let app;
-  let mongoServer;
 
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
-    await mongoose.connect(mongoUri);
-    app = createApp();
-  });
-
-  afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
+    app = await createApp();
   });
 
   afterEach(async () => {

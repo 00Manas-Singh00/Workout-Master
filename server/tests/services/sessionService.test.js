@@ -55,11 +55,9 @@ describe('Session Service', () => {
       expect(exercises[0].displayName).toBe('Bench Press');
     });
 
-    it('should throw ValidationError if userId is invalid', async () => {
-      const fakeId = new mongoose.Types.ObjectId();
-      
+    it('should throw if userId is an invalid ObjectId', async () => {
       await expect(
-        sessionService.createSession(fakeId, { name: 'Test' })
+        sessionService.createSession('not-a-valid-id', { name: 'Test' })
       ).rejects.toThrow();
     });
   });

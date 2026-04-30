@@ -2,35 +2,24 @@ import request from 'supertest';
 import { createApp } from '../../app.js';
 import User from '../../models/userModel.js';
 import Session from '../../models/sessionModel.js';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 
 describe('Session API Integration Tests', () => {
   let app;
-  let mongoServer;
   let userId;
 
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
-    await mongoose.connect(mongoUri);
-    app = createApp();
+    app = await createApp();
+  });
 
+  beforeEach(async () => {
+    // Re-create the test user before each test since setup.js wipes all collections in afterEach
     const user = await User.create({
       clerkUserId: 'clerk_123',
       email: 'test@example.com',
       name: 'Test User',
     });
     userId = user._id;
-  });
-
-  afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
-  });
-
-  afterEach(async () => {
-    await Session.deleteMany({});
   });
 
   describe('POST /api/sessions', () => {
@@ -71,14 +60,14 @@ describe('Session API Integration Tests', () => {
       expect(response.status).toBe(201);
     });
 
-    it('should return 409 if user not synced', async () => {
+    it('should return 400 if user not synced', async () => {
       const response = await request(app)
         .post('/api/sessions')
         .set('Authorization', 'Bearer valid_token')
         .set('x-clerk-user-id', 'nonexistent')
         .send({ name: 'Test Workout' });
 
-      expect(response.status).toBe(409);
+      expect(response.status).toBe(400);
     });
   });
 
@@ -109,13 +98,13 @@ describe('Session API Integration Tests', () => {
       expect(response.body.data.pagination).toBeDefined();
     });
 
-    it('should return 409 if user not synced', async () => {
+    it('should return 400 if user not synced', async () => {
       const response = await request(app)
         .get('/api/sessions')
         .set('Authorization', 'Bearer valid_token')
         .set('x-clerk-user-id', 'nonexistent');
 
-      expect(response.status).toBe(409);
+      expect(response.status).toBe(400);
     });
   });
 

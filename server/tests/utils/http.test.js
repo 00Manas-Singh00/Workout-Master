@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import { ok, fail } from '../../utils/http.js';
 
 describe('HTTP Utils', () => {

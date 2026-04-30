@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import User from '../../models/userModel.js';
 import * as authService from '../../services/authService.js';
 import { ValidationError, NotFoundError } from '../../utils/errors.js';

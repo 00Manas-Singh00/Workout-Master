@@ -1,6 +1,6 @@
 import express from 'express';
 import { sendMessage } from '../controllers/chatController.js';
-import { requireAuth } from '../middleware/authMiddleware.js';
+import { protect as requireAuth } from '../middleware/authMiddleware.js';
 import rateLimit from 'express-rate-limit';
 
 const router = express.Router();
