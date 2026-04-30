@@ -95,7 +95,7 @@ Workout Master is not a simple workout logger. It tracks performance at the *set
 
 ## Core Features
 
-### 🧠 Progression State Machine
+### Progression State Machine
 Every exercise independently tracks its progression state:
 
 ```
@@ -123,14 +123,14 @@ Every exercise independently tracks its progression state:
                                              └──────────┘  └────────────┘
 ```
 
-### 📊 Analytics Dashboard
+### Analytics Dashboard
 - **Volume trend** — sessions per week (8-week window) via MongoDB `$isoWeek` aggregation
 - **Muscle radar** — frequency breakdown across all completed sessions
 - **1RM leaderboard** — exercises ranked by estimated max, with progression state badge
 - **Adherence ring** — animated SVG arc of completion rate
 - Animated count-up KPI cards on mount
 
-### 🤖 AI Coach (`/coach`)
+### AI Coach (`/coach`)
 The Gemini prompt is dynamically built with the user's actual data before every call:
 - Last 8 completed sessions with muscles targeted
 - Top 10 exercises by estimated 1RM + their progression state
@@ -138,7 +138,7 @@ The Gemini prompt is dynamically built with the user's actual data before every 
 
 This means responses like *"Your squat is in deload state — reduce load by 5kg this session"* are grounded in real numbers, not generic advice.
 
-### ⏱ WebSocket Rest Timer
+### WebSocket Rest Timer
 After each set is logged, the server starts a countdown:
 ```
 Client logs set → server:timer:start → server emits timer:tick every 1s
@@ -146,7 +146,7 @@ Client logs set → server:timer:start → server emits timer:tick every 1s
 ```
 Timer state lives on the server — no drift, no polling. The overlay is dismissed with "Skip Rest" or automatically after the "DONE" state.
 
-### 📱 Progressive Web App
+### Progressive Web App
 Add to Home Screen on iOS/Android. Workbox caches:
 - Static assets (aggressive, CacheFirst)
 - Google Fonts (1-year CacheFirst)
