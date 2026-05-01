@@ -3,9 +3,11 @@ import { getNextLoadRecommendation } from '../controllers/recommendationControll
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { requireAuth } from '../middleware/clerkAuthMiddleware.js';
 
+import { cacheMiddleware } from '../middleware/cache.js';
+
 const router = express.Router();
 
 router.use(requireAuth);
-router.get('/exercise/:exerciseKey/next-load', asyncHandler(getNextLoadRecommendation));
+router.get('/exercise/:exerciseKey/next-load', cacheMiddleware(60), asyncHandler(getNextLoadRecommendation));
 
 export default router;

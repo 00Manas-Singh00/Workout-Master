@@ -8,6 +8,8 @@ import {
 } from '../controllers/workoutController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
+import { cacheMiddleware } from '../middleware/cache.js';
+
 const router = express.Router();
 
 // All workout routes require authentication
@@ -15,10 +17,10 @@ router.use(protect);
 
 router.route('/')
   .post(createWorkout)
-  .get(getWorkouts);
+  .get(cacheMiddleware(30), getWorkouts);
 
 router.route('/:id')
-  .get(getWorkout)
+  .get(cacheMiddleware(30), getWorkout)
   .delete(deleteWorkout);
 
 router.route('/:id/complete')

@@ -8,6 +8,8 @@ import {
 } from '../controllers/userController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
+import { cacheMiddleware } from '../middleware/cache.js';
+
 const router = express.Router();
 
 // Public routes
@@ -17,7 +19,7 @@ router.post('/login', loginUser);
 // Protected routes
 router.post('/logout', protect, logoutUser);
 router.route('/profile')
-  .get(protect, getUserProfile)
+  .get(protect, cacheMiddleware(60), getUserProfile)
   .put(protect, updateUserProfile);
 
 export default router; 

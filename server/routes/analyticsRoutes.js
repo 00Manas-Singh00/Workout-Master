@@ -3,6 +3,8 @@ import { getDashboard } from '../controllers/analyticsController.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { requireAuth } from '../middleware/clerkAuthMiddleware.js';
 
+import { cacheMiddleware } from '../middleware/cache.js';
+
 const router = express.Router();
 
 router.use(requireAuth);
@@ -35,6 +37,6 @@ router.use(requireAuth);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/dashboard', asyncHandler(getDashboard));
+router.get('/dashboard', cacheMiddleware(60), asyncHandler(getDashboard));
 
 export default router;
